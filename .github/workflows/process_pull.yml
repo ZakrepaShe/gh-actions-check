@@ -1,0 +1,53 @@
+name: Auto process
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - 'main'
+jobs:
+  time-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.0.1
+        id: current-time
+        with:
+          format: d-H
+
+      - name: Check Business time
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            const [ day, hours ] = (${{ steps.current-time.outputs.formattedTime }}).split('-');
+
+            const weekEnd = day > 0 && day < 6;
+            if (weekEnd) {
+              core.setFailed(`No releases at weekends`);
+            }
+            const businessTime = hours > 13;
+            if (businessTime) {
+              core.setFailed(`No releases at business time`);
+            }
+
+            return 'passed';
+
+#  pr-process:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Find Pull Request
+#        uses: juliangruber/find-pull-request-action@v1
+#        id: find-pr
+#        with:
+#          branch: translated_master
+#
+#      - name: Approve Pull Request
+#        uses: juliangruber/approve-pull-request-action@v1.1.1
+#        if: ${{ steps.find-pr.outputs.number != '' }}
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          number: ${{ steps.find-pr.outputs.number }}
+#          repo: juliangruber/approve-pull-request-action
+
+
