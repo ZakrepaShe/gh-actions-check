@@ -20,7 +20,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const [ day, hours ] = (${{ steps.current-time.outputs.formattedTime }}).split('-');
+            const [ day, hours ] = ('${{ steps.current-time.outputs.formattedTime }}').split('-');
 
             const weekEnd = day > 0 && day < 6;
             if (weekEnd) {
