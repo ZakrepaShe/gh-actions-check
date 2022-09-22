@@ -26,17 +26,6 @@ jobs:
           script: |
             const [ day, hours ] = ('${{ steps.current-time.outputs.formattedTime }}').split('-');
 
-#            const weekEnd = day > 0 && day < 6;
-#            if (weekEnd) {
-#              core.setFailed(`No releases at weekends`);
-#              return 'yes';
-#            }
-#            const businessTime = hours > 13;
-#            if (businessTime) {
-#              core.setFailed(`No releases at business time`);
-#              return 'yes';
-#            }
-
             return 'no';
 
   pr-process:
