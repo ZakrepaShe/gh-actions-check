@@ -7,7 +7,6 @@ on:
       - 'main'
 
 permissions:
-  contents: write
   pull-requests: write
 
 jobs:
@@ -45,11 +44,8 @@ jobs:
           branch: translated_master
 
       - name: Approve Pull Request
-        uses: juliangruber/approve-pull-request-action@v1.1.1
         if: ${{ steps.find-pr.outputs.number != '' }}
+        uses: hmarr/auto-approve-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          number: ${{ steps.find-pr.outputs.number }}
-          repo: juliangruber/approve-pull-request-action
-
+          pull-request-number: ${{ steps.find-pr.outputs.number }}
 
