@@ -7,33 +7,44 @@ on:
       - 'main'
 
 jobs:
-  time-check:
-    runs-on: ubuntu-latest
-    if: github.head_ref == 'translated_master'
-    outputs:
-      businessTime: ${{ steps.business-time.outputs.result }}
-    steps:
-      - name: Get current time
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time
-        with:
-          format: d-H
-
-      - name: Check Business time
-        uses: actions/github-script@v6
-        id: business-time
-        with:
-          result-encoding: string
-          script: |
-            const [ day, hours ] = ('${{ steps.current-time.outputs.formattedTime }}').split('-');
-
-            return 'no';
+#  time-check:
+#    runs-on: ubuntu-latest
+#    if: github.head_ref == 'translated_master'
+#    outputs:
+#      businessTime: ${{ steps.business-time.outputs.result }}
+#    steps:
+#      - name: Get current time
+#        uses: josStorer/get-current-time@v2.0.1
+#        id: current-time
+#        with:
+#          format: d-H
+#
+#      - name: Check Business time
+#        uses: actions/github-script@v6
+#        id: business-time
+#        with:
+#          result-encoding: string
+#          script: |
+#            const [ day, hours ] = ('${{ steps.current-time.outputs.formattedTime }}').split('-');
+#
+#            const weekEnd = day > 0 && day < 6;
+#            if (weekEnd) {
+#              core.setFailed(`No releases at weekends`);
+#              return 'yes';
+#            }
+#            const businessTime = hours > 13;
+#            if (businessTime) {
+#              core.setFailed(`No releases at business time`);
+#              return 'yes';
+#            }
+#
+#            return 'no';
 
 
   process-sync-pr:
     runs-on: ubuntu-latest
-    needs: [time-check]
-    if: ${{ needs.time-check.outputs.businessTime == 'no' }}
+#    needs: [time-check]
+#    if: ${{ needs.time-check.outputs.businessTime == 'no' }}
     steps:
       - name: Find Pull Request
         uses: juliangruber/find-pull-request-action@v1
@@ -42,13 +53,13 @@ jobs:
           branch: translated_master
 
       - name: Approve Pull Request
-        if: ${{ steps.find-pr.outputs.number != '' }}
+        if: ${{ steps.find-pr.outputs.number }}
         uses: hmarr/auto-approve-action@v2
         with:
           pull-request-number: ${{ steps.find-pr.outputs.number }}
 
       - name: Merge Pull Request
-        if: ${{ steps.find-pr.outputs.number != '' }}
+        if: ${{ steps.find-pr.outputs.number }}
         uses: KeisukeYamashita/auto-pull-request-merge@v1
         with:
           pullRequestNumber: ${{ steps.find-pr.outputs.number }}
