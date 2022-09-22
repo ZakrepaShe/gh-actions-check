@@ -62,6 +62,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
 
+      - name: "log"
+        run: echo "${{ steps.f-pr.outputs.number }}"
+
 #      - name: "Approve Pull Request"
 #        if: ${{ steps.find-pr.outputs.number }}
 #        uses: hmarr/auto-approve-action@v2
