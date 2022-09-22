@@ -8,6 +8,7 @@ on:
 jobs:
   time-check:
     runs-on: ubuntu-latest
+    if: github.head_ref == 'translated_master'
     outputs:
       businessTime: ${{ steps.business-time.outputs.result }}
     steps:
@@ -25,23 +26,23 @@ jobs:
           script: |
             const [ day, hours ] = ('${{ steps.current-time.outputs.formattedTime }}').split('-');
 
-            const weekEnd = day > 0 && day < 6;
-            if (weekEnd) {
-              core.setFailed(`No releases at weekends`);
-              return 'failed';
-            }
-            const businessTime = hours > 13;
-            if (businessTime) {
-              core.setFailed(`No releases at business time`);
-              return 'failed';
-            }
+#            const weekEnd = day > 0 && day < 6;
+#            if (weekEnd) {
+#              core.setFailed(`No releases at weekends`);
+#              return 'yes';
+#            }
+#            const businessTime = hours > 13;
+#            if (businessTime) {
+#              core.setFailed(`No releases at business time`);
+#              return 'yes';
+#            }
 
-            return 'passed';
+            return 'no';
 
   pr-process:
     runs-on: ubuntu-latest
     needs: [time-check]
-    if: ${{ needs.time-check.outputs.businessTime == 'passed' }}
+    if: ${{ needs.time-check.outputs.businessTime == 'no' }}
     steps:
       - name: Find Pull Request
         uses: juliangruber/find-pull-request-action@v1
