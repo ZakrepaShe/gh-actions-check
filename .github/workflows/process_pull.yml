@@ -53,10 +53,8 @@ jobs:
           branch: translated_master
 
       - name: "Create pull request to INFRA"
-        run: |
-          numOpenIssues="$(gh pr list --head "translated_master")"
-          echo 'NUM_OPEN_ISSUES='$numOpenIssues.number >> $GITHUB_STEP_SUMMARY
-
+        id: f-pr
+        run: echo "::set-output name=number::$(gh pr view "translated_master" --json number -q .number || echo "")"
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
 
