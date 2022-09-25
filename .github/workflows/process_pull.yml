@@ -54,10 +54,12 @@ jobs:
 
       - name: "Create pull request to INFRA"
         id: f-pr
-        run: echo "::set-output name=number::$(gh pr view "translated_master" --json number -q .number || echo "")"
+        run: echo "::set-output name=number::$(gh pr list --head "translated_master" --json number -q .number || echo "")"
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
 
+      - name: "log"
+        run: echo "${{ steps.f-pr.outputs.number }}"
 
 #      - name: "Approve Pull Request"
 #        if: ${{ steps.find-pr.outputs.number }}
