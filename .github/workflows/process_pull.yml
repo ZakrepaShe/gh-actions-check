@@ -54,7 +54,7 @@ jobs:
 
       - name: "Create pull request to INFRA"
         run: |
-          numOpenIssues="$(gh pr list --head translated_master)"
+          numOpenIssues="$(gh pr list --head "translated_master")"
           echo 'NUM_OPEN_ISSUES='$numOpenIssues.number >> $GITHUB_STEP_SUMMARY
 
         env:
