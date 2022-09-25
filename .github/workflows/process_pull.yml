@@ -52,6 +52,12 @@ jobs:
         with:
           branch: translated_master
 
+      - name: "Checkout INFRA repo"
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.APP_GITHUB_TOKEN }}
+          ref: main
+
       - name: "Create pull request to INFRA"
         id: f-pr
         run: echo "::set-output name=number::$(gh pr list --head "translated_master" --json number -q .number || echo "")"
