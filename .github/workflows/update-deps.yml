@@ -10,7 +10,7 @@ env:
 jobs:
   process-sync-pr:
     runs-on: ubuntu-latest
-    if: github.event.label.name == update-deps
+    if: github.event.label.name == 'update-deps'
     steps:
 
       - name: "Checkout repo"
