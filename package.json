@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/ZakrepaShe/gh-actions-check/issues"
   },
-  "homepage": "https://github.com/ZakrepaShe/gh-actions-check#readme"
+  "homepage": "https://github.com/ZakrepaShe/gh-actions-check#readme",
+  "dependencies": {
+    "creator-addons-app": "7.69.0"
+  }
 }

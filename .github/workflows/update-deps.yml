@@ -5,7 +5,7 @@ on:
     types: [labeled]
 
 env:
-  PACKAGE: 'airslateinc/creator-addons-app'
+  PACKAGE: 'creator-addons-app'
 
 jobs:
   process-sync-pr:
@@ -40,7 +40,7 @@ jobs:
           git config user.name ${{ github.actor }}@noreply.github.com
           git config user.email ${{ github.actor }}@noreply.github.com
           git commit -a -m 'chore: update deps'
-          git push origin HEAD
+          git push
 
       - name: "Publish"
         env:
