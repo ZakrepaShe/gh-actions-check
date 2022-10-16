@@ -1,0 +1,31 @@
+name: Beta release
+
+on:
+  push:
+    branches: release-next
+
+jobs:
+  process-sync-pr:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+
+      - name: "NodeJS setup"
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14.x'
+
+      - name: "NPM registry set"
+        run: |
+          npm config set registry https://artifactory.infrateam.xyz/artifactory/api/npm/npm/
+          npm config set always-auth true
+          echo "//artifactory.infrateam.xyz/artifactory/api/npm/npm/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+
+      - name: "Publish via semantic-release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
+
