@@ -6,39 +6,35 @@ on:
 
 env:
   PACKAGE: 'airslateinc/creator-addons-app'
-  LABEL: 'deps-update'
+  LABEL: 'update-deps'
 
 jobs:
   process-sync-pr:
     runs-on: ubuntu-latest
+    if: ${{ github.event.label.name == env.LABEL }}
     steps:
 
       - name: "Checkout repo"
-        if: ${{ github.event.label.name == env.LABEL }}
         uses: actions/checkout@v3
 
       - name: "NodeJS setup"
-        if: ${{ github.event.label.name == env.LABEL }}
         uses: actions/setup-node@v3
         with:
           node-version: '14.x'
           cache: 'yarn'
 
       - name: "Setup NPM registry"
-        if: ${{ github.event.label.name == env.LABEL }}
         run: |
           npm config set registry https://artifactory.infrateam.xyz/artifactory/api/npm/npm/
           npm config set always-auth true
           echo "//artifactory.infrateam.xyz/artifactory/api/npm/npm/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
 
       - name: "Upgrade packages versions"
-        if: ${{ github.event.label.name == env.LABEL }}
         run: |
           yarn upgrade ${{ env.PACKAGE }} --latest
       #          npm install ${{ env.PACKAGE }}@latest
 
       - name: "Push updated deps"
-        if: ${{ github.event.label.name == env.LABEL }}
         env:
           GITHUB_GLOBAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -48,7 +44,6 @@ jobs:
           git push origin HEAD
 
       - name: "Publish"
-        if: ${{ github.event.label.name == env.LABEL }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -56,7 +51,6 @@ jobs:
         run: npx semantic-release -p ['@semantic-release/commit-analyzer', '@semantic-release/release-notes-generator', '@semantic-release/github', '@semantic-release/npm', '@semantic-release/git'] --branches ['release-next']
 
       - name: "Delete pull request label"
-        if: ${{ github.event.label.name == env.LABEL }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
