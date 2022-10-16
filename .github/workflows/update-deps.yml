@@ -1,0 +1,58 @@
+name: Deps Update
+
+on:
+  pull_request:
+    types: [labeled]
+
+env:
+  PACKAGE: 'airslateinc/creator-addons-app'
+  LABEL: 'deps-update'
+
+jobs:
+  process-sync-pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.label.name == env.LABEL }}
+    steps:
+
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+
+      - name: "NodeJS setup"
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14.x'
+          cache: 'yarn'
+
+      - name: "Setup NPM registry"
+        run: |
+          npm config set registry https://artifactory.infrateam.xyz/artifactory/api/npm/npm/
+          npm config set always-auth true
+          echo "//artifactory.infrateam.xyz/api/npm/npm/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          echo "//artifactory.infrateam.xyz/artifactory/api/npm/npm/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+
+      - name: "Upgrade packages versions"
+        run: |
+#          npm install ${{ env.PACKAGE }}@latest
+          yarn upgrade ${{ env.PACKAGE }} --latest
+
+      - name: "Push updated deps"
+        env:
+          GITHUB_GLOBAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name ${{ github.actor }}@noreply.github.com
+          git config user.email ${{ github.actor }}@noreply.github.com
+          git commit -a -m 'chore: update deps'
+          git push origin HEAD
+
+      - name: "Publish"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          AS_CI: true
+        run: npx semantic-release -p ['@semantic-release/commit-analyzer', '@semantic-release/release-notes-generator', '@semantic-release/github', '@semantic-release/npm', '@semantic-release/git'] --branches ['release-next']
+
+      - name: "Delete pull request label"
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: ${{ env.LABEL }}

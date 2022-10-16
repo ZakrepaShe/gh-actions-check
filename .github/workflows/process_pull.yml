@@ -80,7 +80,7 @@ jobs:
 
       - name: "Merge Pull Request"
         id: merge-pr
-        run: gh pr merge ${{ steps.find-pr.outputs.number }} --merge
+        run: gh pr merge ${{ steps.find-pr.outputs.number }} --merge --delete-branch
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
 
