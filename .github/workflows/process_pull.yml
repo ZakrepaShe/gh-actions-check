@@ -45,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
 #    needs: [time-check]
 #    if: ${{ needs.time-check.outputs.businessTime == 'no' }}
+    if: github.head_ref == 'translated_master'
     steps:
 #      - name: "Find Pull Request"
 #        uses: juliangruber/find-pull-request-action@v1
@@ -52,10 +53,8 @@ jobs:
 #        with:
 #          branch: translated_master
 
-#      - name: "Checkout INFRA repo"
-#        uses: actions/checkout@v3
-#        with:
-#          ref: main
+      - name: "Checkout INFRA repo"
+        uses: actions/checkout@v3
 
       - name: "Find Pull Request"
         id: find-pr
