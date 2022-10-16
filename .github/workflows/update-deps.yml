@@ -11,7 +11,7 @@ env:
 jobs:
   process-sync-pr:
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name }} == ${{ env.LABEL }}
+    if: github.event.label.name == env.LABEL
     steps:
 
       - name: "Checkout repo"
