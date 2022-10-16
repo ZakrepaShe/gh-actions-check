@@ -7,17 +7,17 @@ on:
       - 'main'
 
 jobs:
-  time-check:
-    runs-on: ubuntu-latest
-    if: github.head_ref == 'translated_master'
-    outputs:
-      businessTime: ${{ steps.business-time.outputs.result }}
-    steps:
-      - name: "Get current time"
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time
-        with:
-          format: d-H
+#  time-check:
+#    runs-on: ubuntu-latest
+#    if: github.head_ref == 'translated_master'
+#    outputs:
+#      businessTime: ${{ steps.business-time.outputs.result }}
+#    steps:
+#      - name: "Get current time"
+#        uses: josStorer/get-current-time@v2.0.1
+#        id: current-time
+#        with:
+#          format: d-H
 
 #      - name: "Check Business time"
 #        uses: actions/github-script@v6
@@ -46,25 +46,22 @@ jobs:
 #    needs: [time-check]
 #    if: ${{ needs.time-check.outputs.businessTime == 'no' }}
     steps:
+#      - name: "Find Pull Request"
+#        uses: juliangruber/find-pull-request-action@v1
+#        id: find-pr
+#        with:
+#          branch: translated_master
+
+#      - name: "Checkout INFRA repo"
+#        uses: actions/checkout@v3
+#        with:
+#          ref: main
+
       - name: "Find Pull Request"
-        uses: juliangruber/find-pull-request-action@v1
         id: find-pr
-        with:
-          branch: translated_master
-
-      - name: "Checkout INFRA repo"
-        uses: actions/checkout@v3
-        with:
-          ref: main
-
-      - name: "Create pull request to INFRA"
-        id: f-pr
         run: echo "::set-output name=number::$(gh pr list --head "translated_master" --json number -q .[0].number || echo "")"
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
-
-      - name: "log"
-        run: echo "${{ steps.f-pr.outputs.number }}"
 
 #      - name: "Approve Pull Request"
 #        if: ${{ steps.find-pr.outputs.number }}
@@ -78,4 +75,10 @@ jobs:
 #        with:
 #          pullRequestNumber: ${{ steps.find-pr.outputs.number }}
 #          token: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
+
+      - name: "Merge Pull Request"
+        id: merge-pr
+        run: gh pr merge ${{ steps.find-pr.outputs.number }}
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
 
