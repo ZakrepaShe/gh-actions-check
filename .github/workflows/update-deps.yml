@@ -31,7 +31,6 @@ jobs:
           npm config set always-auth true
           echo "//artifactory.infrateam.xyz/api/npm/npm/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
           echo "//artifactory.infrateam.xyz/artifactory/api/npm/npm/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
       - name: "Upgrade packages versions"
         if: ${{ github.event.label.name == env.LABEL }}
         run: |
