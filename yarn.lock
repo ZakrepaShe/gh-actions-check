@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@airslate/platform-ci@^6.2.4", "@airslate/platform-ci@^6.30.2":
+"@airslate/platform-ci@^6.2.4":
   version "6.30.2"
   resolved "https://artifactory.infrateam.xyz:443/artifactory/api/npm/npm/@airslate/platform-ci/-/@airslate/platform-ci-6.30.2.tgz#ba92beb53323e076b7598f9cb8c1c1abb572b0db"
   integrity sha512-CrDeqGmKpsyMSb41dhnwek+mGi8ymdZFnPyUz7oTjq+Ivf9b/Lp/l3YgLEfD1i5pP0R+Cmj66rBiToxtGi5EZw==
