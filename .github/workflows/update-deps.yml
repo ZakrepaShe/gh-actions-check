@@ -50,8 +50,8 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           AS_CI: true
         run: |
-          npm i semantic-release '@semantic-release/commit-analyzer' '@semantic-release/release-notes-generator' '@semantic-release/github' '@semantic-release/npm' '@semantic-release/git' --no-save
-          npx semantic-release -p ['@semantic-release/commit-analyzer', '@semantic-release/release-notes-generator', '@semantic-release/github', '@semantic-release/npm', '@semantic-release/git'] --branches ['release-next'] -d
+          npm i -g semantic-release '@semantic-release/commit-analyzer' '@semantic-release/release-notes-generator' '@semantic-release/github' '@semantic-release/npm' '@semantic-release/git' --no-save
+          semantic-release -p ['@semantic-release/commit-analyzer', '@semantic-release/release-notes-generator', '@semantic-release/github', '@semantic-release/npm', '@semantic-release/git'] --branches ['release-next'] -d
 
       - name: "Delete pull request label"
         uses: actions-ecosystem/action-remove-labels@v1
