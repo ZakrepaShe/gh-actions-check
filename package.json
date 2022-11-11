@@ -16,6 +16,15 @@
   "bugs": {
     "url": "https://github.com/ZakrepaShe/gh-actions-check/issues"
   },
+  "release": {
+    "branches": [
+      "release-next"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator"
+    ]
+  },
   "homepage": "https://github.com/ZakrepaShe/gh-actions-check#readme",
   "dependencies": {
     "creator-addons-app": "7.69.0"

@@ -1,0 +1,99 @@
+name: Autosync CrowdIn, repo pulls with RC spa-static-server
+
+on:
+  workflow_dispatch
+
+env:
+  BRANCH_NAME: rc-locales-autosync
+  ENVIRONMENT: rc
+
+jobs:
+  process-sync-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout locales repo"
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.APP_GITHUB_TOKEN }}
+
+      - name: "Find sync Pull Request"
+        uses: juliangruber/find-pull-request-action@v1
+        id: find-pr
+        with:
+          branch: translated_master
+
+      - name: "Approve sync Pull Request"
+        if: ${{ steps.find-pr.outputs.number }}
+        uses: hmarr/auto-approve-action@v2
+        with:
+          pull-request-number: ${{ steps.find-pr.outputs.number }}
+
+      - name: "Merge sync Pull Request"
+        if: ${{ steps.find-pr.outputs.number }}
+        run: gh pr merge ${{ steps.find-pr.outputs.number }} --merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  locales-build:
+    needs: [process-sync-pr]
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      env: rc
+      po-files-directory: result
+
+  argocd-deploy:
+    runs-on: ubuntu-latest
+    needs: [locales-build]
+    if: ${{ needs.locales-build.outputs.BUILD_ID }}
+    permissions:
+      pull-requests: write
+    steps:
+      - name: "Checkout INFRA repo"
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.APP_GITHUB_TOKEN }}
+          repository: airslateinc/airslate-microservices-infra
+          ref: main
+
+      - name: "Checkout or create release branch"
+        run: |
+          git fetch
+          git checkout --track -b ${{ env.BRANCH_NAME }} origin/${{ env.BRANCH_NAME }} || git checkout --track -b ${{ env.BRANCH_NAME }} origin/main
+
+      - name: "Find and replace BUILD_ID for RC"
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval -i '(.main.env_vars[] | select(has("name")) | select(.name == "LOCALE_BUILD")).value = "${{ needs.locales-build.outputs.BUILD_ID }}"' 'api/spa-static-server/${{ env.ENVIRONMENT }}/values.yaml'
+
+      - name: "Commit changes"
+        run: |
+          git config user.name ${{ github.actor }}@noreply.github.com
+          git config user.email ${{ github.actor }}@noreply.github.com
+          git add api/spa-static-server/${{ env.ENVIRONMENT }}/values.yaml
+          git commit -m "Update locales ${{ needs.locales-build.outputs.BUILD_ID }} on ${{ env.ENVIRONMENT }}"
+          git push origin HEAD
+
+      - name: "Create pull request to INFRA"
+        run: gh pr create --title "Update locales on ${{ env.ENVIRONMENT }}" --body ""
+        env:
+          GH_TOKEN: ${{ secrets.APP_GITHUB_TOKEN }}
+
+      - name: "Find Pull Request"
+        id: find-pr
+        run: echo "::set-output name=number::$(gh pr list --head "${{ env.BRANCH_NAME }}" --json number -q .[0].number || echo "")"
+        env:
+          GH_TOKEN: ${{ secrets.APP_GITHUB_TOKEN }}
+
+      - name: "Approve infra Pull Request"
+        if: ${{ steps.find-pr.outputs.number }}
+        run: gh pr review ${{ steps.find-pr.outputs.number }} --approve
+        env:
+#          needs another token with write access
+          GH_TOKEN: ${{ secrets.APP_GITHUB_TOKEN }}
+
+      - name: "Merge infra Pull Request"
+        if: ${{ steps.find-pr.outputs.number }}
+        run: gh pr merge ${{ steps.find-pr.outputs.number }} --merge
+        env:
+          GH_TOKEN: ${{ secrets.APP_GITHUB_TOKEN }}
