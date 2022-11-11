@@ -18,7 +18,11 @@
   },
   "release": {
     "branches": [
-      "release-next"
+      "master",
+      {
+        "name": "release-next",
+        "prerelease": true
+      }
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",

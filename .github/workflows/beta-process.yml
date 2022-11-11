@@ -27,5 +27,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release -p '@semantic-release/commit-analyzer' '@semantic-release/release-notes-generator' --branches 'release-next'
+        run: npx semantic-release
 
