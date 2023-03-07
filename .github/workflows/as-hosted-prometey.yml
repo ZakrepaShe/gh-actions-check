@@ -1,0 +1,53 @@
+name: Prometey api create
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+env:
+  AUTH_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Inpha3JlcGEueWV2aGVuaWlAcGRmZmlsbGVyLnRlYW0iLCJpZCI6IjQ4IiwiaWF0IjoxNjUzMzE0NzUxLCJleHAiOjE2NTU5MDY3NTF9.hwKAtHTQUqxYB9Z2IAmMm4iliuZSnrzlsM-uWpLCG-M
+  SERVER_VERSION: "v2.9.2"
+
+jobs:
+  process-sync-pr:
+    runs-on: ubuntu-self-prod-as
+    steps:
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+
+      - name: "NodeJS setup"
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.6.0'
+
+      - name: "Create payload"
+        uses: actions/github-script@v6
+        id: prometey-payload
+        with:
+          result-encoding: string
+          script: |
+            return '{
+              "title": "test-x",
+              "virtualEnvServices": [
+                {
+                  "service_name": "spa-devconsole",
+                  "service_github_tag": ${{ env.SERVER_VERSION }},
+                  "environmentVariables": [
+                    {
+                      "name": "BUNDLE_PATHS",
+                      "value": "https://cdn.airslate.com/devconsole-front/530/528.82decdabd04f7f3c0315.js, https://cdn.airslate.com/devconsole-front/530/DevConsole.3ae44be12788e376fadd.js"
+                    }
+                  ]
+                }
+              ]
+            }';
+
+      - name: "Prometey create env"
+        uses: fjogeleit/http-request-action@v1
+        id: create-env
+        with:
+          url: 'https://prometey-admin-api.airslate-stage.xyz/api/v1/virtual-env'
+          method: 'POST'
+          bearerToken: ${{ env.AUTH_TOKEN }}
+          customHeaders: '{"Content-Type": "application/json"}'
+          data: ${{ steps.prometey-payload.outputs.result }}
