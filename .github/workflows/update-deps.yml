@@ -1,4 +1,4 @@
-name: Deps Update
+name: "[L] Deps Update"
 
 on:
   pull_request:

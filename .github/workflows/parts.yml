@@ -1,4 +1,4 @@
-name: Autosync CrowdIn, repo pulls with RC spa-static-server
+name: "1 Autosync CrowdIn, repo pulls with RC spa-static-server"
 
 on:
   workflow_dispatch
