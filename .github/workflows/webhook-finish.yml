@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-self-prod-as
+    runs-on: ubuntu-latest
     steps:
       - name: "Show Pull Request Link"
         run: |
