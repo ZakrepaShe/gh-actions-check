@@ -1,0 +1,32 @@
+name: "[L] Prometey trigger deploy"
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'Prometey:deploy'
+    steps:
+      - name: "Create build trigger payload"
+        uses: actions/github-script@v6
+        id: build-payload
+        with:
+          script: |
+            return {
+              "branch-name": "${{ github.head_ref }}",
+              "repo-name": "${{ github.repository }}",
+              "pull-number": "${{ github.event.number }}",
+            }
+
+      - name: "Trigger remote platform build"
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{repository}/dispatches
+          repository: ZakrepaShe/gh-actions-check
+          event_type: 'remote-build'
+          headers: '{ "X-GitHub-Api-Version": "2022-11-28" }'
+          client_payload: ${{ steps.build-payload.outputs.result }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

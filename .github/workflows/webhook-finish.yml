@@ -1,0 +1,23 @@
+name: "[X] Prometey env create/update"
+
+on:
+  repository_dispatch:
+    types:
+      - remote-build
+
+jobs:
+  deploy:
+    runs-on: ubuntu-self-prod-as
+    steps:
+      - name: "Show Pull Request Link"
+        run: |
+          echo "branch-name=${{ github.event.client_payload.branch-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "repo-name=${{ github.event.client_payload.repo-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "pull-number=${{ github.event.client_payload.pull-number }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Delete pull request label"
+        if: ${{ always() }}
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: 'Prometey:deploy'
