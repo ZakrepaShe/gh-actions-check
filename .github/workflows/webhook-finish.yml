@@ -20,4 +20,6 @@ jobs:
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ github.event.client_payload.pull-number }}
+          repo: ${{ github.event.client_payload.repo-name }}
           labels: 'Prometey:deploy'
