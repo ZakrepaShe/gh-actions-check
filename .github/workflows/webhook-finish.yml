@@ -16,7 +16,7 @@ jobs:
           echo "pull-number=${{ github.event.client_payload.pull-number }}" >> $GITHUB_STEP_SUMMARY
 
       - name: "Update pull request description"
-        if: ${{ fromJson(github.event.client_payload.pull-body) != '' }}
+        if: ${{ toJson(github.event.client_payload.pull-body) != '' }}
         uses: octokit/request-action@v2.x
         with:
           route: POST /repos/{repository}/pulls/{pull_number}
