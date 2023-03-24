@@ -15,7 +15,7 @@ jobs:
         with:
           script: |
             return (${{ toJson(github.event.pull_request.body) }}).includes('\n- [x] Prometey:')
-              ? ''
+              ? 'unmodified'
               : ${{ toJson(github.event.pull_request.body) }} + "\n- [x] Prometey:"
 
       - name: "Create trigger payload"
