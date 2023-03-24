@@ -1,4 +1,4 @@
-name: "[L] Prometey trigger deploy"
+name: "[L] Webhook sent by label"
 
 on:
   pull_request:
@@ -9,7 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.label.name == 'Prometey:deploy'
     steps:
-      - name: "Create build trigger payload"
+      - name: "Modify pull request description"
+        uses: actions/github-script@v6
+        id: pull-body
+        with:
+          script: |
+            return (${{ toJson(github.event.pull_request.body) }}).includes('\n- [x] Prometey:')
+              ? ''
+              : ${{ toJson(github.event.pull_request.body) }} + "\n- [x] Prometey:"
+
+      - name: "Create trigger payload"
         uses: actions/github-script@v6
         id: build-payload
         with:
@@ -18,14 +27,15 @@ jobs:
               "branch-name": "${{ github.head_ref }}",
               "repo-name": "${{ github.repository }}",
               "pull-number": "${{ github.event.number }}",
+              "pull-body": ${{ steps.pull-body.outputs.result }},
             }
 
-      - name: "Trigger remote platform build"
+      - name: "Trigger middle webhook"
         uses: octokit/request-action@v2.x
         with:
           route: POST /repos/{repository}/dispatches
           repository: ZakrepaShe/gh-actions-check
-          event_type: 'remote-build'
+          event_type: 'webhook-middle'
           headers: '{ "X-GitHub-Api-Version": "2022-11-28" }'
           client_payload: ${{ steps.build-payload.outputs.result }}
         env:
