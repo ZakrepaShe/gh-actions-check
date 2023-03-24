@@ -14,7 +14,6 @@ jobs:
           echo "branch-name=${{ github.event.client_payload.branch-name }}" >> $GITHUB_STEP_SUMMARY
           echo "repo-name=${{ github.event.client_payload.repo-name }}" >> $GITHUB_STEP_SUMMARY
           echo "pull-number=${{ github.event.client_payload.pull-number }}" >> $GITHUB_STEP_SUMMARY
-          echo "pull-body=${{ toJson(github.event.client_payload.pull-body) }}" >> $GITHUB_STEP_SUMMARY
 
       - name: "Update pull request description"
         if: ${{ fromJson(github.event.client_payload.pull-body) != '' }}
