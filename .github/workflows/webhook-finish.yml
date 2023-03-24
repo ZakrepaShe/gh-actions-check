@@ -14,7 +14,7 @@ jobs:
           echo "branch-name=${{ github.event.client_payload.branch-name }}" >> $GITHUB_STEP_SUMMARY
           echo "repo-name=${{ github.event.client_payload.repo-name }}" >> $GITHUB_STEP_SUMMARY
           echo "pull-number=${{ github.event.client_payload.pull-number }}" >> $GITHUB_STEP_SUMMARY
-          echo "pull-body=${{ github.event.client_payload.pull-body }}" >> $GITHUB_STEP_SUMMARY
+          echo "pull-body=${{ toJson(github.event.client_payload.pull-body) }}" >> $GITHUB_STEP_SUMMARY
 
       - name: "Update pull request description"
         if: ${{ fromJson(github.event.client_payload.pull-body) != '' }}
@@ -23,7 +23,7 @@ jobs:
           route: POST /repos/{repository}/pulls/{pull_number}
           repository: ${{ github.event.client_payload.repo-name }}
           pull_number: ${{ github.event.client_payload.pull-number }}
-          body: ${{ github.event.client_payload.pull-body }}
+          body: ${{ toJson(github.event.client_payload.pull-body) }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
