@@ -18,7 +18,7 @@ jobs:
               "branch-name": "${{ github.event.client_payload.branch-name }}",
               "repo-name": "${{ github.event.client_payload.repo-name }}",
               "pull-number": "${{ github.event.client_payload.pull-number }}",
-              "pull-body": "${{ github.event.client_payload.pull-body }}"
+              "pull-body": ${{ toJson(github.event.client_payload.pull-body) }}
             }
 
       - name: "Trigger finish webhook"
