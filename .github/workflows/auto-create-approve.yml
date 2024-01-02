@@ -32,7 +32,8 @@ jobs:
 
       - name: "Create pull request to INFRA"
         run: |
-          pr_url=$(gh pr create --title "Update A for B" --body "" | awk '/Created pull request/ {print $4}')
+          pr_url=$(gh pr create --title "Update A for B" --body "")
+          echo "PR_URL=${pr_url}" >> $GITHUB_ENV
           pr_number=$(basename "$pr_url")
           echo "PR_NUMBER=${pr_number}" >> $GITHUB_ENV
         env:
