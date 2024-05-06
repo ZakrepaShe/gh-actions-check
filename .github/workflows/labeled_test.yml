@@ -26,10 +26,6 @@ jobs:
               ? 'unmodified'
               : (${{ toJson(github.event.pull_request.body) }}).replace('**Virtual env**: [_<title>_](https://prometey-admin.airslate-stage.xyz/venv/<number>)', '**Virtual env**: [_${{ steps.v-env-title.outputs.result }}_](https://prometey-admin.airslate-stage.xyz/?search=${{ steps.v-env-title.outputs.result }})')
 
-      - name: Dump PR body
-        run: |
-          echo "${{ steps.pr-body.outputs.result }}"
-
       - name: "Update pull request description with prometey link"
         if: toJson(steps.pr-body.outputs.result) != toJson('unmodified')
         uses: octokit/request-action@v2.x
@@ -37,7 +33,7 @@ jobs:
           route: POST /repos/{repository}/pulls/{pull_number}
           repository: ${{ github.repository }}
           pull_number: ${{ github.event.number }}
-          body: ${{ toJson(steps.pr-body.outputs.result) }}
+          body: ${{ steps.pr-body.outputs.result }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
