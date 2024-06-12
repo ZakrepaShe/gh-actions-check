@@ -22,7 +22,7 @@ jobs:
         id: pr-body
         with:
           script: |
-            const prBody = github.event.pull_request.body || '';
+            const prBody = (${{ toJson(github.event.pull_request.body) }}) || '';
             const searchPattern = /\*\*Virtual env\*\*: \[_<title>_\]/;
             if (!searchPattern.test(prBody)) {
               return { result: 'unmodified' };
