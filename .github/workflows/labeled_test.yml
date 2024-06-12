@@ -22,21 +22,12 @@ jobs:
         id: pr-body
         with:
           script: |
-            const prBody = (${{ toJson(github.event.pull_request.body) }}) || '';
-            const searchPattern = /\*\*Virtual env\*\*: \[_<title>_\]/;
-            if (!searchPattern.test(prBody)) {
-              return { result: 'unmodified' };
-            } else {
-              const newBody = prBody.replace(
-                '**Virtual env**: [_<title>_](https://prometey-admin.airslate-stage.xyz/venv/<number>)',
-                `**Virtual env**: [_${{ steps.v-env-title.outputs.result }}_](https://prometey-admin.airslate-stage.xyz/?search=${{ steps.v-env-title.outputs.result }})`
-              );
-              return { result: newBody };
-            }
-          outputs: result
+            return !(${{ toJson(github.event.pull_request.body) }}).includes('**Virtual env**: [_<title>_]')
+              ? 'unmodified'
+              : (${{ toJson(github.event.pull_request.body) }}).replace('**Virtual env**: [_<title>_](https://prometey-admin.airslate-stage.xyz/venv/<number>)', '**Virtual env**: [_${{ steps.v-env-title.outputs.result }}_](https://prometey-admin.airslate-stage.xyz/?search=${{ steps.v-env-title.outputs.result }})')
 
       - name: "Update pull request description with prometey link"
-        if: steps.pr-body.outputs.result != 'unmodified'
+        if: ${{ steps.pr-body.outputs.result != 'unmodified' }}
         uses: octokit/request-action@v2.x
         with:
           route: POST /repos/{repository}/pulls/{pull_number}
