@@ -22,6 +22,7 @@ jobs:
             echo "PR title '$PR_TITLE' follows the Conventional Commits specification." >> $GITHUB_STEP_SUMMARY
             exit 0
           else
+            echo "Error: PR title '$PR_TITLE' does not follow the Conventional Commits specification. Look Action summary for details."
             echo "Error: PR title '$PR_TITLE' does not follow the Conventional Commits specification." >> $GITHUB_STEP_SUMMARY
             echo "It should start with one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert" >> $GITHUB_STEP_SUMMARY
             echo "Then a colon and space, followed by a description." >> $GITHUB_STEP_SUMMARY
