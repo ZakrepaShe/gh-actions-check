@@ -17,7 +17,7 @@ jobs:
         id: check_title
         run: |
           PR_TITLE=$(echo "${{ github.event.pull_request.title }}")
-          REGEX="^(feat|fix|style|refactor|perf|revert)(\((main|hotfix|[A-Z]+-[0-9]+)\)): .{5,}$"
+          REGEX="^(feat|fix|style|refactor|perf|revert)(\((main|hotfix|[A-Z]+-[0-9]+)\))?: .{5,}$"
           OPTIONAL_REGEX="^(docs|chore|test)(\((main|hotfix|[A-Z]+-[0-9]+)\))?: .{5,}$"
 
           if [[ ! "$PR_TITLE" =~ $REGEX ]] && [[ ! "$PR_TITLE" =~ $OPTIONAL_REGEX ]]; then
