@@ -1,6 +1,6 @@
 name: '[X] PR autoupdate'
 
-push: {}
+on: push
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
