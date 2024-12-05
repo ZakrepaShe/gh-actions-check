@@ -6,9 +6,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: false
 
-permissions:
-  actions: write
-
 # test
 jobs:
   autoupdate:
@@ -17,5 +14,5 @@ jobs:
     steps:
       - uses: docker://chinthakagodawita/autoupdate-action:v1
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: '${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}'
           PR_READY_STATE: 'ready_for_review'
