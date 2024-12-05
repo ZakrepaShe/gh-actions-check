@@ -1,0 +1,81 @@
+name: '[X] PR Check Title'
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, edited, reopened]
+
+jobs:
+  pr-title-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Validate PR title format'
+        id: check_title
+        run: |
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}")
+          REGEX="^(feat|fix|style|refactor|perf|revert)(\((main|hotfix|[A-Z]+-[0-9]+)\))?: .{5,}$"
+          OPTIONAL_REGEX="^(docs|chore|test)(\((main|hotfix|[A-Z]+-[0-9]+)\))?: .{5,}$"
+
+          if [[ ! "$PR_TITLE" =~ $REGEX ]] && [[ ! "$PR_TITLE" =~ $OPTIONAL_REGEX ]]; then
+            echo "::error::PR title does not match the required format."
+            echo "result=failure" >> $GITHUB_ENV
+            echo "message=❌ PR title does not match the required pattern.\nExpected format: <type>(JIRA-ID|hotfix|main): <short-desc>\nFor 'docs', 'chore', and 'test', JIRA-ID is optional.\nFor other types, JIRA-ID or 'hotfix' or 'main' is required.\n<type> should be one of: feat, fix, style, refactor, perf, test, chore, docs, revert" >> $GITHUB_ENV
+          else
+            echo "result=success" >> $GITHUB_ENV
+            echo "message=✅ PR title is valid." >> $GITHUB_ENV
+          fi
+
+      - name: 'Output Result in Summary'
+        if: always()
+        run: |
+          echo "### PR Title Check" >> $GITHUB_STEP_SUMMARY
+          echo -e "${{ env.message }}" >> $GITHUB_STEP_SUMMARY
+
+
+      - name: 'Cleanup PR thread'
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            for (const comment of comments.data) {
+              if (comment.user.type === 'Bot' && comment.body.includes('PR title does not match the required pattern')) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id,
+                });
+              }
+            }
+
+      - name: 'Comment in PR thread'
+        uses: actions/github-script@v7
+        if: env.result == 'failure'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const message = `${{ env.message }}`
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/'/g, '&apos;');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message,
+            });
+
+      - name: 'Fail Build if Invalid'
+        if: env.result == 'failure'
+        run: exit 1
