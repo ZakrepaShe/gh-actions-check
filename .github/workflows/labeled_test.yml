@@ -1,0 +1,51 @@
+name: "[XL] Prometey Build"
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  process-v-env:
+    if: github.event.label.name == 'Prometey:build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Compose v-env title"
+        uses: actions/github-script@v7
+        id: v-env-title
+        with:
+          result-encoding: string
+          script: |
+            return '${{ github.head_ref }}'.slice(0,31).replace(/[_/]/g,'-').toLowerCase();
+
+      - name: "Form pull request description with prometey link"
+        uses: actions/github-script@v7
+        id: pr-body
+        with:
+          script: |
+            return !(${{ toJson(github.event.pull_request.body) }}).includes('**Virtual env**: [_<title>_]')
+              ? "unmodified"
+              : (${{ toJson(github.event.pull_request.body) }}).replace('**Virtual env**: [_<title>_](https://prometey-admin.airslate-stage.xyz/venv/<number>)', '**Virtual env**: [_${{ steps.v-env-title.outputs.result }}_](https://prometey-admin.airslate-stage.xyz/?search=${{ steps.v-env-title.outputs.result }})')
+
+      - name: "Update pull request description with prometey link"
+        if: ${{ steps.pr-body.outputs.result != '"unmodified"' }}
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{repository}/pulls/{pull_number}
+          repository: ${{ github.repository }}
+          pull_number: ${{ github.event.number }}
+          body: ${{ steps.pr-body.outputs.result }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Show v-env Link"
+        run: |
+          echo "Link=https://prometey-admin.airslate-stage.xyz/?search=${{ steps.v-env-title.outputs.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Delete pull request 'Prometey:build' label"
+        if: ${{ always() }}
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ github.event.number }}
+          repo: ${{ github.repository }}
+          labels: 'Prometey:build'

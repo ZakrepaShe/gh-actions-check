@@ -1,0 +1,36 @@
+name: "[X] Webhook finish"
+
+on:
+  repository_dispatch:
+    types:
+      - webhook-finish
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Show Pull Request Link"
+        run: |
+          echo "branch-name=${{ github.event.client_payload.branch-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "repo-name=${{ github.event.client_payload.repo-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "pull-number=${{ github.event.client_payload.pull-number }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Update pull request description"
+        if: toJson(github.event.client_payload.pull-body) != toJson('unmodified')
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{repository}/pulls/{pull_number}
+          repository: ${{ github.event.client_payload.repo-name }}
+          pull_number: ${{ github.event.client_payload.pull-number }}
+          body: ${{ toJson(github.event.client_payload.pull-body) }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Delete pull request label"
+        if: ${{ always() }}
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ github.event.client_payload.pull-number }}
+          repo: ${{ github.event.client_payload.repo-name }}
+          labels: 'Prometey:deploy'

@@ -1,4 +1,4 @@
-name: Auto process
+name: "[X] Auto process"
 
 on:
   pull_request:

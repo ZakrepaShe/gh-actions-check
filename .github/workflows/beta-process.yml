@@ -1,4 +1,4 @@
-name: Beta release
+name: "[X] Beta release"
 
 on:
   push:
