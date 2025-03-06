@@ -18,3 +18,9 @@ jobs:
           script: |
             const name = 'release-dflow-' + (new Date()).toLocaleDateString('uk-Ua').replace('.20', '').replaceAll('.','');
             core.exportVariable('V_ENV_NAME', name);
+
+      - name: log
+        env:
+          GITHUB_CONTEXT: ${{ env.V_ENV_NAME }}
+        run: |
+          echo "$GITHUB_CONTEXT"
