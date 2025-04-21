@@ -13,22 +13,24 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_GITHUB_SUPERTOKEN }}
           script: |
-            const query = 'repo:airslateinc/qa-docuflow-tests is:pr is:open label:release-fixes';
-            const result = await github.rest.search.issuesAndPullRequests({
-              q: query
-            });
+            const query = `
+              query {
+                search(query: "repo:airslateinc/qa-docuflow-tests is:pr is:open label:release-fixes", type: ISSUE, first: 1) {
+                  nodes {
+                    ... on PullRequest {
+                      number
+                      headRefName
+                    }
+                  }
+                }
+              }
+            `;
             
+            const result = await github.graphql(query);
             let releaseBranch = 'master';
             
-            if (result.data.items.length > 0) {
-              const pr = result.data.items[0];
-              const prData = await github.rest.pulls.get({
-                owner: 'airslateinc',
-                repo: 'qa-docuflow-tests',
-                pull_number: pr.number
-              });
-              
-              releaseBranch = prData.data.head.ref;
+            if (result.search.nodes.length > 0) {
+              releaseBranch = result.search.nodes[0].headRefName;
               console.log(`Found release-fixes PR branch: ${releaseBranch}`);
             } else {
               console.log('No PR with release-fixes tag found, using master as fallback');
